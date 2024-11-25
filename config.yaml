@@ -1,0 +1,19 @@
+# Reactor mechanism
+mechanism: 'aramco_full.yaml'
+
+# Simulation parameters
+time_total: 5 # Total residence time [s]
+temperature_C: 1000.0  # Operating temperature [Celsius]
+pressure: 101325.0  # Operating pressure [Pascal] (one atmosphere)
+
+# Initial composition (mole fractions)
+initial_composition:
+  CH4: 0.9
+
+# Recycle configuration
+recycle_ratios:
+  CH4: 1.0
+  C2H6: 0.0
+sigma: 1.0e-6  # Concentration threshold (mol/m³)
+max_iterations: 20  # Maximum number of recycle iterations
+convergence_tol: 1.0e-6  # Convergence tolerance for recycle loop
