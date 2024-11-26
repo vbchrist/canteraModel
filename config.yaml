@@ -9,7 +9,9 @@ pressure: 101325.0  # Operating pressure [Pascal] (one atmosphere)
 # Initial composition (mole fractions)
 initial_composition:
   CH4: 0.8
-  C2H6: 0.15
+  C2H6: 0.04
+  C3H8: 0.04
+  CO2: 0.02
 
 # Recycle configuration
 recycle_ratios:

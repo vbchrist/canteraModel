@@ -46,8 +46,11 @@ class OutputFormatter:
         print("-" * 115)
         
         gas = recycle_results.reactor_results.state
-        molecular_weights = {sp: gas.molecular_weights[gas.species_index(sp)] 
-                            for sp in recycle_results.reactor_results.concentrations.keys()}
+        molecular_weights = {
+            sp: gas.molecular_weights[gas.species_index(sp)] 
+            for sp in set(list(recycle_results.reactor_results.concentrations.keys()) + 
+                         list(fresh_feed_composition.keys()))
+        }
         
         # Get concentrations from reactor outlet
         reactor_concentrations = recycle_results.reactor_results.concentrations
