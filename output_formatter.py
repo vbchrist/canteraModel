@@ -45,19 +45,25 @@ class OutputFormatter:
         print(f"{'':8} {units[1]:>10} {units[2]:>10} {units[3]:>10} {units[4]:>10} {units[5]:>10} {units[6]:>12} {units[7]:>12}")
         print("-" * 115)
         
+        # Get all unique species from both feed and products
+        all_species = set(fresh_feed_composition.keys()) | set(recycle_results.reactor_results.concentrations.keys())
+        
+        # Get molecular weights for all species
         gas = recycle_results.reactor_results.state
         molecular_weights = {
             sp: gas.molecular_weights[gas.species_index(sp)] 
-            for sp in set(list(recycle_results.reactor_results.concentrations.keys()) + 
-                         list(fresh_feed_composition.keys()))
+            for sp in all_species
         }
-        
-        # Get concentrations from reactor outlet
-        reactor_concentrations = recycle_results.reactor_results.concentrations
         
         # Calculate initial mass percentages using fresh feed
         initial_total_mass = sum(conc * molecular_weights[sp] 
                          for sp, conc in fresh_feed_composition.items())
+        
+        # Initialize reactor concentrations with zeros for missing species
+        reactor_concentrations = {
+            sp: recycle_results.reactor_results.concentrations.get(sp, 0.0)
+            for sp in all_species
+        }
         
         # Rest of the adjustments for outlet concentrations...
         adjusted_concentrations = {}
@@ -66,8 +72,7 @@ class OutputFormatter:
         for sp, conc in reactor_concentrations.items():
             recycle_ratio = recycle_results.recycle_ratios.get(sp, 0.0)
             adjusted_conc = conc * (1 - recycle_ratio)
-            if adjusted_conc > 0:
-                adjusted_concentrations[sp] = adjusted_conc
+            adjusted_concentrations[sp] = adjusted_conc  # Keep all species, even with zero concentration
         
         # Normalize adjusted concentrations
         total_adj_conc = sum(adjusted_concentrations.values())
@@ -80,22 +85,28 @@ class OutputFormatter:
         total_mass = sum(conc * molecular_weights[sp] 
                         for sp, conc in normalized_concentrations.items())
         
-        total_mass_perc = 0.0
         total_conc = 0.0
+        total_mass_perc = 0.0
+        total_in_conc = 0.0
+        total_in_mass = 0.0
         
-        for species in reactor_concentrations.keys():
+        for species in all_species:
             conc = normalized_concentrations.get(species, 0.0)
-            in_conc = fresh_feed_composition.get(species, 0.0)  # Use fresh feed instead of final_feed
+            in_conc = fresh_feed_composition.get(species, 0.0)
             in_mass_perc = (in_conc * molecular_weights[species] / initial_total_mass) * 100 if in_conc > 0 else 0.0
             out_mass_perc = (conc * molecular_weights[species] / total_mass) * 100 if conc > 0 else 0.0
             value = product_values.get(species, 0.0)
             feed_value = weighted_feed_values.get(species, 0.0)
             market_price = econ.market_prices.get_price(species)
             
-            if conc > self.sigma:
+            # Add to totals for both input and output
+            total_in_conc += in_conc * 100
+            total_in_mass += in_mass_perc
+            
+            if conc > self.sigma or in_conc > 0:
                 print(f"{species:<8} {market_price:>10.2f} {in_conc*100:>10.2f} {in_mass_perc:>10.2f} "
                       f"{conc*100:>10.2f} {out_mass_perc:>10.2f} {feed_value:>12.2f} {value:>12.2f}")
-                total_conc += conc*100
+                total_conc += conc * 100
                 total_mass_perc += out_mass_perc
             else:
                 print(f"{species:<8} {market_price:>10.2f} {in_conc*100:>10.2f} {in_mass_perc:>10.2f} "
@@ -103,7 +114,8 @@ class OutputFormatter:
         
         print("-" * 115)
         total_feed_value = sum(weighted_feed_values.values())
-        print(f"{'Total':<8} {'-':>10} {total_conc:>10.2f} {total_mass_perc:>10.2f} {total_feed_value:>12.2f} {total_value:>12.2f}")
+        print(f"{'Total':<8} {'-':>10} {total_in_conc:>10.2f} {total_in_mass:>10.2f} "
+              f"{total_conc:>10.2f} {total_mass_perc:>10.2f} {total_feed_value:>12.2f} {total_value:>12.2f}")
         print("-" * 115)
         print(f"{'Net Value':<52} {net_value:>12.2f} {'USD/ton feed':<12}")
         print(f"{'Recycle/Feed Ratio':<52} {recycle_results.recycle_to_feed_ratio:>12.2f} {'ton/ton':<12}")

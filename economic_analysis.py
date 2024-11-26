@@ -64,8 +64,11 @@ class EconomicAnalysis:
         basis_mass: float = Constants.BASIS_MASS
     ) -> EconomicResults:
         """Calculate economic value of products per ton of mixed feed"""
-        # Get final concentrations from reactor outlet
-        final_concentrations = reactor_results.concentrations
+        # Get all unique species from both feed and products
+        all_species = set(fresh_feed_composition.keys()) | set(reactor_results.concentrations.keys())
+        
+        # Initialize concentrations dict with zeros for all species
+        final_concentrations = {sp: reactor_results.concentrations.get(sp, 0.0) for sp in all_species}
         
         # Adjust concentrations for recycled species
         adjusted_concentrations = {}
@@ -126,8 +129,7 @@ class EconomicAnalysis:
         weighted_feed_values = {}
         for sp in final_concentrations.keys():
             if sp in fresh_feed_composition:
-                feed_mass = basis_mass * (fresh_feed_composition[sp] * 
-                           self.gas.molecular_weights[self.gas.species_index(sp)] / feed_mol_weight)
+                feed_mass = basis_mass * (fresh_feed_composition[sp] * self.gas.molecular_weights[self.gas.species_index(sp)] / feed_mol_weight)
                 weighted_feed_values[sp] = feed_mass * self.market_prices.get_price(sp) / 1000
             else:
                 weighted_feed_values[sp] = 0.0

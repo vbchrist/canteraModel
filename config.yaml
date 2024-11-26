@@ -16,7 +16,10 @@ initial_composition:
 # Recycle configuration
 recycle_ratios:
   CH4: 1.0
-  C2H6: 0.0
+  C2H6: 1.0
+  C3H8: 1.0
+
+
 sigma: 1.0e-6  # Concentration threshold (mol/m³)
 max_iterations: 20  # Maximum number of recycle iterations
 convergence_tol: 1.0e-6  # Convergence tolerance for recycle loop
