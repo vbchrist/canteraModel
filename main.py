@@ -50,7 +50,7 @@ def main() -> None:
     econ = EconomicAnalysis(gas=base_model.gas)
     economic_results: EconomicResults = econ.calculate_economic_value(
         reactor_results=recycle_results.reactor_results,
-        initial_composition=reactor_config.initial_composition,
+        fresh_feed_composition=config['initial_composition'],
         recycle_ratios=reactor_config.recycle_ratios
     )
 
@@ -58,7 +58,12 @@ def main() -> None:
     formatter = OutputFormatter(sigma=config['sigma'])
     formatter.print_simulation_parameters(reactor_config)
     formatter.print_recycle_info(recycle_results)
-    formatter.print_economic_results(recycle_results, econ, economic_results)
+    formatter.print_economic_results(
+        recycle_results=recycle_results,
+        econ=econ,
+        economic_results=economic_results,
+        fresh_feed_composition=config['initial_composition']
+    )
 
 if __name__ == "__main__":
     main()

@@ -17,20 +17,6 @@ class ReactorResults:
     state: Any  # Cantera state object
 
 @dataclass
-class RecycleResults:
-    reactor_results: ReactorResults
-    recycle_streams: List[Dict[str, float]]
-    final_feed: Dict[str, float]
-    iterations: int
-    converged: bool
-    gas: Any  # Cantera gas object
-    recycle_to_feed_ratio: float
-    initial_moles: float
-    final_recycle_moles: float
-    mass_balance_history: List[Dict[str, float]]
-    recycle_ratios: Dict[str, float]
-
-@dataclass
 class EconomicResults:
     product_values: Dict[str, float]
     total_value: float
@@ -48,4 +34,17 @@ class ReactorConfig:
     max_iterations: int
     convergence_tol: float
     mass_balance_tol: float = 1e-6
-  
+
+@dataclass
+class RecycleResults:
+    reactor_results: ReactorResults
+    recycle_streams: List[Dict[str, float]]
+    final_feed: Dict[str, float]
+    iterations: int
+    converged: bool
+    gas: Any  
+    recycle_to_feed_ratio: float
+    initial_moles: float
+    final_recycle_moles: float
+    mass_balance_history: List[Dict[str, float]]
+    recycle_ratios: Dict[str, float]  

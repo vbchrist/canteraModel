@@ -59,7 +59,7 @@ class EconomicAnalysis:
     def calculate_economic_value(
         self, 
         reactor_results: ReactorResults,
-        initial_composition: Dict[str, float],
+        fresh_feed_composition: Dict[str, float],
         recycle_ratios: Dict[str, float],
         basis_mass: float = Constants.BASIS_MASS
     ) -> EconomicResults:
@@ -101,31 +101,33 @@ class EconomicAnalysis:
         total_value = 0
         
         for sp in adjusted_concentrations.keys():
-            if sp not in initial_composition:  # Only calculate values for products
+            if sp not in fresh_feed_composition:  # Only calculate values for products
                 value = mass_flows[sp] * self.market_prices.get_price(sp) / 1000
                 product_values[sp] = value
                 total_value += value
             else:
                 product_values[sp] = 0.0
         
-        # Calculate feed cost (using mass fractions)
+        # Calculate feed cost using fresh feed composition
         feed_mol_weight = sum(
             frac * self.gas.molecular_weights[self.gas.species_index(sp)]
-            for sp, frac in initial_composition.items()
+            for sp, frac in fresh_feed_composition.items()
         )
         
         feed_cost = sum(
-            basis_mass * (frac * self.gas.molecular_weights[self.gas.species_index(sp)] / feed_mol_weight) * self.market_prices.get_price(sp) / 1000
-            for sp, frac in initial_composition.items()
+            basis_mass * (frac * self.gas.molecular_weights[self.gas.species_index(sp)] / feed_mol_weight) * 
+            self.market_prices.get_price(sp) / 1000
+            for sp, frac in fresh_feed_composition.items()
         )
         
         net_value = total_value - feed_cost
         
-        # Calculate weighted feed values for each species
+        # Calculate weighted feed values using fresh feed composition
         weighted_feed_values = {}
         for sp in final_concentrations.keys():
-            if sp in initial_composition:
-                feed_mass = basis_mass * (initial_composition[sp] * self.gas.molecular_weights[self.gas.species_index(sp)] / feed_mol_weight)
+            if sp in fresh_feed_composition:
+                feed_mass = basis_mass * (fresh_feed_composition[sp] * 
+                           self.gas.molecular_weights[self.gas.species_index(sp)] / feed_mol_weight)
                 weighted_feed_values[sp] = feed_mass * self.market_prices.get_price(sp) / 1000
             else:
                 weighted_feed_values[sp] = 0.0
