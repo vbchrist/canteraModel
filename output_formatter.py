@@ -90,7 +90,10 @@ class OutputFormatter:
         total_in_conc = 0.0
         total_in_mass = 0.0
         
-        for species in all_species:
+        # Sort species by molecular weight
+        sorted_species = sorted(all_species, key=lambda sp: molecular_weights[sp])
+        
+        for species in sorted_species:
             conc = normalized_concentrations.get(species, 0.0)
             in_conc = fresh_feed_composition.get(species, 0.0)
             in_mass_perc = (in_conc * molecular_weights[species] / initial_total_mass) * 100 if in_conc > 0 else 0.0

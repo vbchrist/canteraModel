@@ -1,5 +1,5 @@
 # Reactor mechanism
-mechanism: 'aramco_full.yaml'
+mechanism: 'PolyMech.yaml'
 
 # Simulation parameters
 time_total: 5 # Total residence time [s]
@@ -8,7 +8,7 @@ pressure: 101325.0  # Operating pressure [Pascal] (one atmosphere)
 
 # Initial composition (mole fractions)
 initial_composition:
-  CH4: 0.8
+  CH4: 0.9
   C2H6: 0.04
   C3H8: 0.04
   CO2: 0.02
@@ -20,6 +20,6 @@ recycle_ratios:
   C3H8: 1.0
 
 
-sigma: 1.0e-6  # Concentration threshold (mol/m³)
+sigma: 1.0e-7  # Concentration threshold (mol/m³)
 max_iterations: 20  # Maximum number of recycle iterations
 convergence_tol: 1.0e-6  # Convergence tolerance for recycle loop
